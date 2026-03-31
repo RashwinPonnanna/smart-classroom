@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block title %}Faculty Schedule - SmartScheduler{% endblock %}
+{% block page_title %}<i class="bi bi-person-workspace"></i> Faculty Schedule{% endblock %}
+
+{% block content %}
+<!-- Faculty Selector -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Select Faculty</label>
+                <select class="form-select" onchange="window.location.href='{{ url_for('faculty.schedule') }}?faculty_id='+this.value">
+                    <option value="">-- Choose Faculty --</option>
+                    {% for f in faculty_list %}
+                    <option value="{{ f.id }}" {{ 'selected' if selected_faculty and selected_faculty.id == f.id }}>
+                        {{ f.name }} ({{ f.department.name }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% if selected_faculty %}
+            <div class="col-md-4">
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('faculty.preferences', faculty_id=selected_faculty.id) }}" class="btn btn-outline-primary">
+                        <i class="bi bi-sliders"></i> Set Preferences
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <h5 class="mb-0">{{ selected_faculty.name }}</h5>
+                <small class="text-muted">{{ selected_faculty.designation }} - {{ selected_faculty.department.name }}</small>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if selected_faculty and schedule %}
+<!-- Schedule Grid -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <h6 class="mb-0"><i class="bi bi-calendar-week"></i> Weekly Schedule ({{ schedule.total_entries }} classes)</h6>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-bordered timetable-grid mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="text-center" style="width:100px;">Period</th>
+                        {% for day in schedule.days %}
+                        <th class="text-center">{{ day }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for period in schedule.periods %}
+                    <tr>
+                        <td class="text-center fw-bold period-cell">
+                            <div>P{{ period }}</div>
+                            <small class="text-muted">{{ time_slots.get(period, '') }}</small>
+                        </td>
+                        {% for day in schedule.days %}
+                        <td class="timetable-cell">
+                            {% set entries = schedule.grid[day][period] %}
+                            {% if entries %}
+                                {% for entry in entries %}
+                                <div class="schedule-block dept-{{ (entry.subject.course_id|string)[-1] }}">
+                                    <div class="subject-name">{{ entry.subject.name }}</div>
+                                    <div class="room-name"><i class="bi bi-door-open"></i> {{ entry.classroom.name }}</div>
+                                    <span class="badge {{ 'bg-warning' if entry.subject.subject_type == 'lab' else 'bg-info' }} badge-type">
+                                        {{ entry.subject.subject_type }}
+                                    </span>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="empty-slot text-muted text-center"><small>Free</small></div>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% if period == 4 %}
+                    <tr class="lunch-break">
+                        <td colspan="{{ schedule.days|length + 1 }}" class="text-center bg-light">
+                            <i class="bi bi-cup-hot"></i> <strong>Lunch Break</strong> (12:30 - 13:10)
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Workload Summary -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white">
+        <h6 class="mb-0"><i class="bi bi-bar-chart"></i> Workload Summary</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="text-center">
+                    <h4 class="text-primary">{{ schedule.total_entries }}</h4>
+                    <small class="text-muted">Total Hours/Week</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center">
+                    <h4 class="text-success">{{ selected_faculty.max_hours_per_week }}</h4>
+                    <small class="text-muted">Max Allowed/Week</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center">
+                    <h4 class="text-warning">{{ selected_faculty.max_hours_per_day }}</h4>
+                    <small class="text-muted">Max Allowed/Day</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center">
+                    {% set util = (schedule.total_entries / selected_faculty.max_hours_per_week * 100)|round(1) %}
+                    <h4 class="{{ 'text-danger' if util > 90 else 'text-primary' }}">{{ util }}%</h4>
+                    <small class="text-muted">Utilization</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% elif show_preferences is defined and show_preferences and selected_faculty %}
+<!-- Preferences Form -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white">
+        <h6 class="mb-0"><i class="bi bi-sliders"></i> Time Slot Preferences for {{ selected_faculty.name }}</h6>
+    </div>
+    <div class="card-body">
+        <form action="{{ url_for('faculty.preferences') }}" method="POST">
+            <input type="hidden" name="faculty_id" value="{{ selected_faculty.id }}">
+            <p class="text-muted mb-3">Set your preference for each time slot: 1=Avoid, 2=Neutral, 3=Prefer (default), 4=Strongly Prefer</p>
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Day</th>
+                            <th>Period</th>
+                            <th>Time</th>
+                            <th>Preference</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ts in time_slots_list %}
+                        <tr>
+                            <td>{{ ts.day }}</td>
+                            <td>Period {{ ts.period_number }}</td>
+                            <td>{{ ts.start_time }} - {{ ts.end_time }}</td>
+                            <td>
+                                <select name="pref_{{ ts.id }}" class="form-select form-select-sm" style="width:160px;">
+                                    <option value="1" {{ 'selected' if existing_prefs.get(ts.id) == 1 }}>1 - Avoid</option>
+                                    <option value="2" {{ 'selected' if existing_prefs.get(ts.id) == 2 }}>2 - Neutral</option>
+                                    <option value="3" {{ 'selected' if existing_prefs.get(ts.id, 3) == 3 }}>3 - Prefer</option>
+                                    <option value="4" {{ 'selected' if existing_prefs.get(ts.id) == 4 }}>4 - Strongly Prefer</option>
+                                </select>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">
+                <i class="bi bi-check-lg"></i> Save Preferences
+            </button>
+        </form>
+    </div>
+</div>
+
+{% elif not selected_faculty %}
+<div class="text-center p-5 text-muted">
+    <i class="bi bi-person-workspace" style="font-size: 3rem;"></i>
+    <h5 class="mt-3">Select a faculty member to view their schedule</h5>
+</div>
+{% endif %}
+{% endblock %}

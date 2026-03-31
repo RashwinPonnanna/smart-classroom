@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+{% block title %}Manage {{ entity|title }} - SmartScheduler{% endblock %}
+{% block page_title %}<i class="bi bi-gear"></i> Manage {{ entity|title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Add Form -->
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0"><i class="bi bi-plus-circle"></i> Add {{ entity[:-1]|title if entity.endswith('s') else entity|title }}</h6>
+            </div>
+            <div class="card-body">
+                {% if entity == 'departments' %}
+                <form action="{{ url_for('admin.add_department') }}" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Department Name</label>
+                        <input type="text" name="name" class="form-control" required placeholder="e.g. Computer Science">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Code</label>
+                        <input type="text" name="code" class="form-control" required placeholder="e.g. CSE" maxlength="10">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Add Department</button>
+                </form>
+
+                {% elif entity == 'courses' %}
+                <form action="{{ url_for('admin.add_course') }}" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Course Name</label>
+                        <input type="text" name="name" class="form-control" required placeholder="e.g. B.Tech CS">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Code</label>
+                        <input type="text" name="code" class="form-control" required placeholder="e.g. BTCS">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Department</label>
+                        <select name="department_id" class="form-select" required>
+                            <option value="">Select Department</option>
+                            {% for d in departments %}
+                            <option value="{{ d.id }}">{{ d.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Add Course</button>
+                </form>
+
+                {% elif entity == 'subjects' %}
+                <form action="{{ url_for('admin.add_subject') }}" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Subject Name</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Code</label>
+                        <input type="text" name="code" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Course</label>
+                        <select name="course_id" class="form-select" required>
+                            <option value="">Select Course</option>
+                            {% for c in courses %}
+                            <option value="{{ c.id }}">{{ c.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Semester</label>
+                            <input type="number" name="semester" class="form-control" value="5" min="1" max="8">
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Hours/Week</label>
+                            <input type="number" name="hours_per_week" class="form-control" value="3" min="1" max="8">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Type</label>
+                        <select name="subject_type" class="form-select">
+                            <option value="theory">Theory</option>
+                            <option value="lab">Lab</option>
+                            <option value="tutorial">Tutorial</option>
+                        </select>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" name="requires_lab" class="form-check-input" id="reqLab">
+                        <label class="form-check-label" for="reqLab">Requires Lab</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Add Subject</button>
+                </form>
+
+                {% elif entity == 'faculty' %}
+                <form action="{{ url_for('admin.add_faculty') }}" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Department</label>
+                        <select name="department_id" class="form-select" required>
+                            <option value="">Select Department</option>
+                            {% for d in departments %}
+                            <option value="{{ d.id }}">{{ d.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Designation</label>
+                        <select name="designation" class="form-select">
+                            <option value="Professor">Professor</option>
+                            <option value="Associate Professor">Associate Professor</option>
+                            <option value="Assistant Professor" selected>Assistant Professor</option>
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Max Hrs/Week</label>
+                            <input type="number" name="max_hours_per_week" class="form-control" value="20">
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Max Hrs/Day</label>
+                            <input type="number" name="max_hours_per_day" class="form-control" value="5">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Add Faculty</button>
+                </form>
+
+                {% elif entity == 'classrooms' %}
+                <form action="{{ url_for('admin.add_classroom') }}" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Room Name</label>
+                        <input type="text" name="name" class="form-control" required placeholder="e.g. LH-101">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Building</label>
+                        <input type="text" name="building" class="form-control" value="Main">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Capacity</label>
+                        <input type="number" name="capacity" class="form-control" value="40" min="1">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Room Type</label>
+                        <select name="room_type" class="form-select">
+                            <option value="lecture">Lecture Hall</option>
+                            <option value="lab">Laboratory</option>
+                            <option value="seminar">Seminar Hall</option>
+                        </select>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" name="has_projector" class="form-check-input" id="hasProj" checked>
+                        <label class="form-check-label" for="hasProj">Has Projector</label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" name="has_lab_equipment" class="form-check-input" id="hasLab">
+                        <label class="form-check-label" for="hasLab">Has Lab Equipment</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Add Classroom</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h6 class="mb-0"><i class="bi bi-list"></i> {{ entity|title }} ({{ items|length }})</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        {% if entity == 'departments' %}
+                        <thead class="table-light">
+                            <tr><th>ID</th><th>Name</th><th>Code</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr>
+                                <td>{{ item.id }}</td>
+                                <td>{{ item.name }}</td>
+                                <td><span class="badge bg-primary">{{ item.code }}</span></td>
+                                <td>
+                                    <form action="{{ url_for('admin.delete_department', dept_id=item.id) }}" method="POST" class="d-inline">
+                                        <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete?')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+
+                        {% elif entity == 'courses' %}
+                        <thead class="table-light">
+                            <tr><th>ID</th><th>Name</th><th>Code</th><th>Department</th><th>Semesters</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr>
+                                <td>{{ item.id }}</td>
+                                <td>{{ item.name }}</td>
+                                <td><span class="badge bg-success">{{ item.code }}</span></td>
+                                <td>{{ item.department_name }}</td>
+                                <td>{{ item.total_semesters }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+
+                        {% elif entity == 'subjects' %}
+                        <thead class="table-light">
+                            <tr><th>ID</th><th>Name</th><th>Code</th><th>Course</th><th>Sem</th><th>Type</th><th>Hrs</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr>
+                                <td>{{ item.id }}</td>
+                                <td>{{ item.name }}</td>
+                                <td><span class="badge bg-info">{{ item.code }}</span></td>
+                                <td>{{ item.course_name }}</td>
+                                <td>{{ item.semester }}</td>
+                                <td>
+                                    <span class="badge {{ 'bg-warning' if item.subject_type == 'lab' else 'bg-secondary' }}">
+                                        {{ item.subject_type }}
+                                    </span>
+                                </td>
+                                <td>{{ item.hours_per_week }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+
+                        {% elif entity == 'faculty' %}
+                        <thead class="table-light">
+                            <tr><th>ID</th><th>Name</th><th>Email</th><th>Department</th><th>Designation</th><th>Max Hrs</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr>
+                                <td>{{ item.id }}</td>
+                                <td>{{ item.name }}</td>
+                                <td>{{ item.email }}</td>
+                                <td>{{ item.department_name }}</td>
+                                <td>{{ item.designation }}</td>
+                                <td>{{ item.max_hours_per_week }}/wk</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+
+                        {% elif entity == 'classrooms' %}
+                        <thead class="table-light">
+                            <tr><th>ID</th><th>Name</th><th>Building</th><th>Capacity</th><th>Type</th><th>Projector</th><th>Lab</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr>
+                                <td>{{ item.id }}</td>
+                                <td>{{ item.name }}</td>
+                                <td>{{ item.building }}</td>
+                                <td>{{ item.capacity }}</td>
+                                <td><span class="badge {{ 'bg-warning' if item.room_type == 'lab' else 'bg-primary' }}">{{ item.room_type }}</span></td>
+                                <td>{{ 'Yes' if item.has_projector else 'No' }}</td>
+                                <td>{{ 'Yes' if item.has_lab_equipment else 'No' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+
+                        {% elif entity == 'students' %}
+                        <thead class="table-light">
+                            <tr><th>ID</th><th>Name</th><th>Roll No</th><th>Course</th><th>Semester</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr>
+                                <td>{{ item.id }}</td>
+                                <td>{{ item.name }}</td>
+                                <td>{{ item.roll_number }}</td>
+                                <td>{{ item.course_name }}</td>
+                                <td>{{ item.semester }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        {% endif %}
+                    </table>
+                </div>
+                {% if not items %}
+                <div class="text-center p-4 text-muted">
+                    <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                    <p>No {{ entity }} found. Add one using the form.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

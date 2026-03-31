@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Timetable - SmartScheduler{% endblock %}
+{% block page_title %}<i class="bi bi-table"></i> Timetable Management{% endblock %}
+
+{% block content %}
+<!-- Controls -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">Course</label>
+                <select id="courseSelect" class="form-select" onchange="filterTimetable()">
+                    <option value="">All Courses</option>
+                    {% for c in courses %}
+                    <option value="{{ c.id }}" {{ 'selected' if selected_course == c.id }}>{{ c.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Semester</label>
+                <select id="semesterSelect" class="form-select" onchange="filterTimetable()">
+                    {% for s in range(1, 9) %}
+                    <option value="{{ s }}" {{ 'selected' if selected_semester == s }}>Semester {{ s }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <form action="{{ url_for('admin.generate_timetable') }}" method="POST" class="d-flex gap-2">
+                    <input type="hidden" name="course_id" id="genCourseId" value="{{ selected_course or '' }}">
+                    <input type="hidden" name="semester" id="genSemester" value="{{ selected_semester or 5 }}">
+                    <button type="submit" class="btn btn-primary" id="generateBtn">
+                        <i class="bi bi-magic"></i> Generate Timetable
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="window.print()">
+                        <i class="bi bi-printer"></i> Print
+                    </button>
+                </form>
+            </div>
+            <div class="col-md-3 text-end">
+                <span class="badge bg-primary fs-6">{{ timetable.total_entries }} entries</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Timetable Grid -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-bordered timetable-grid mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="text-center" style="width:100px;">Period</th>
+                        {% for day in timetable.days %}
+                        <th class="text-center">{{ day }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for period in timetable.periods %}
+                    <tr>
+                        <td class="text-center fw-bold period-cell">
+                            <div>Period {{ period }}</div>
+                            <small class="text-muted">{{ time_slots.get(period, '') }}</small>
+                        </td>
+                        {% for day in timetable.days %}
+                        <td class="timetable-cell">
+                            {% set entries = timetable.grid[day][period] %}
+                            {% if entries %}
+                                {% for entry in entries %}
+                                <div class="schedule-block dept-{{ (entry.subject.course_id|string)[-1] }}">
+                                    <div class="subject-name">{{ entry.subject.name }}</div>
+                                    <div class="faculty-name"><i class="bi bi-person"></i> {{ entry.faculty.name }}</div>
+                                    <div class="room-name"><i class="bi bi-door-open"></i> {{ entry.classroom.name }}</div>
+                                    <span class="badge {{ 'bg-warning' if entry.subject.subject_type == 'lab' else 'bg-info' }} badge-type">
+                                        {{ entry.subject.subject_type }}
+                                    </span>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="empty-slot text-muted text-center">
+                                    <small>Free</small>
+                                </div>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% if period == 4 %}
+                    <tr class="lunch-break">
+                        <td colspan="{{ timetable.days|length + 1 }}" class="text-center bg-light">
+                            <i class="bi bi-cup-hot"></i> <strong>Lunch Break</strong> (12:30 - 13:10)
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Legend -->
+<div class="card border-0 shadow-sm mt-3">
+    <div class="card-body">
+        <h6><i class="bi bi-info-circle"></i> Legend</h6>
+        <div class="d-flex gap-3 flex-wrap">
+            <span><span class="badge bg-info">Theory</span> Lecture class</span>
+            <span><span class="badge bg-warning">Lab</span> Laboratory session</span>
+            <span class="schedule-block dept-1 d-inline-block px-2" style="font-size:0.8rem;">Course 1</span>
+            <span class="schedule-block dept-2 d-inline-block px-2" style="font-size:0.8rem;">Course 2</span>
+            <span class="schedule-block dept-3 d-inline-block px-2" style="font-size:0.8rem;">Course 3</span>
+            <span class="schedule-block dept-4 d-inline-block px-2" style="font-size:0.8rem;">Course 4</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function filterTimetable() {
+    const courseId = document.getElementById('courseSelect').value;
+    const semester = document.getElementById('semesterSelect').value;
+    document.getElementById('genCourseId').value = courseId;
+    document.getElementById('genSemester').value = semester;
+
+    let url = '{{ url_for("admin.timetable") }}?semester=' + semester;
+    if (courseId) url += '&course_id=' + courseId;
+    window.location.href = url;
+}
+</script>
+{% endblock %}

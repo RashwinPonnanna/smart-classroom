@@ -1,0 +1,250 @@
+/* ============================================
+   Smart Classroom Timetable Scheduler - Styles
+   ============================================ */
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    min-height: 100vh;
+    position: sticky;
+    top: 0;
+    flex-shrink: 0;
+}
+
+.sidebar .nav-link {
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    margin: 2px 0;
+    transition: background-color 0.2s;
+}
+
+.sidebar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .nav-link.active {
+    background-color: rgba(13, 110, 253, 0.3);
+}
+
+.sidebar .nav-link i {
+    margin-right: 8px;
+    width: 20px;
+    text-align: center;
+}
+
+/* Main content */
+.main-content {
+    min-height: 100vh;
+    background-color: #f8f9fa;
+}
+
+/* Stat cards */
+.stat-card {
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+}
+
+/* Timetable grid */
+.timetable-grid {
+    font-size: 0.85rem;
+}
+
+.timetable-grid th {
+    vertical-align: middle;
+    text-align: center;
+}
+
+.timetable-cell {
+    min-width: 150px;
+    padding: 4px !important;
+    vertical-align: top;
+}
+
+.period-cell {
+    background-color: #f8f9fa;
+    vertical-align: middle;
+}
+
+/* Schedule blocks - color coded by course */
+.schedule-block {
+    padding: 6px 8px;
+    border-radius: 6px;
+    margin-bottom: 3px;
+    font-size: 0.78rem;
+    border-left: 4px solid;
+    position: relative;
+}
+
+.schedule-block .subject-name {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.schedule-block .faculty-name,
+.schedule-block .room-name {
+    font-size: 0.72rem;
+    color: #555;
+}
+
+.schedule-block .badge-type {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    font-size: 0.6rem;
+}
+
+/* Course-based color coding */
+.dept-1 {
+    background-color: #e3f2fd;
+    border-left-color: #1565c0;
+}
+
+.dept-2 {
+    background-color: #e8f5e9;
+    border-left-color: #2e7d32;
+}
+
+.dept-3 {
+    background-color: #fff3e0;
+    border-left-color: #ef6c00;
+}
+
+.dept-4 {
+    background-color: #fce4ec;
+    border-left-color: #c62828;
+}
+
+.dept-5 {
+    background-color: #f3e5f5;
+    border-left-color: #7b1fa2;
+}
+
+.dept-6 {
+    background-color: #e0f7fa;
+    border-left-color: #00838f;
+}
+
+.dept-7 {
+    background-color: #fff8e1;
+    border-left-color: #f9a825;
+}
+
+.dept-8 {
+    background-color: #efebe9;
+    border-left-color: #4e342e;
+}
+
+.dept-9 {
+    background-color: #e8eaf6;
+    border-left-color: #283593;
+}
+
+.dept-0 {
+    background-color: #fafafa;
+    border-left-color: #424242;
+}
+
+.empty-slot {
+    padding: 12px;
+    color: #ccc;
+}
+
+/* Lunch break row */
+.lunch-break td {
+    padding: 8px !important;
+    font-size: 0.85rem;
+}
+
+/* Print styles */
+@media print {
+    .sidebar,
+    .navbar,
+    .btn,
+    .alert,
+    form {
+        display: none !important;
+    }
+
+    .main-content {
+        margin: 0;
+        padding: 0;
+    }
+
+    .timetable-grid {
+        font-size: 0.7rem;
+    }
+
+    .schedule-block {
+        break-inside: avoid;
+    }
+
+    .card {
+        border: 1px solid #ddd !important;
+        box-shadow: none !important;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 60px;
+    }
+
+    .sidebar .nav-link span,
+    .sidebar-header h5,
+    .sidebar-header small {
+        display: none;
+    }
+
+    .sidebar .nav-link {
+        text-align: center;
+        padding: 0.6rem 0.3rem;
+    }
+
+    .sidebar .nav-link i {
+        margin: 0;
+        font-size: 1.2rem;
+    }
+}
+
+/* Table hover effect */
+.table-hover tbody tr:hover {
+    background-color: rgba(13, 110, 253, 0.04);
+}
+
+/* Badge enhancements */
+.badge {
+    font-weight: 500;
+}
+
+/* Card hover */
+.card {
+    transition: box-shadow 0.2s;
+}
+
+/* Loading spinner */
+.spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}

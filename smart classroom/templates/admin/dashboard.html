@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard - SmartScheduler{% endblock %}
+{% block page_title %}<i class="bi bi-speedometer2"></i> Admin Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Total Entries</h6>
+                        <h3 class="mb-0">{{ stats.total_entries }}</h3>
+                    </div>
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                        <i class="bi bi-calendar-check"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Faculty</h6>
+                        <h3 class="mb-0">{{ stats.total_faculty }}</h3>
+                    </div>
+                    <div class="stat-icon bg-success bg-opacity-10 text-success">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Classrooms</h6>
+                        <h3 class="mb-0">{{ stats.total_classrooms }}</h3>
+                    </div>
+                    <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                        <i class="bi bi-door-open"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Students</h6>
+                        <h3 class="mb-0">{{ stats.total_students }}</h3>
+                    </div>
+                    <div class="stat-icon bg-info bg-opacity-10 text-info">
+                        <i class="bi bi-mortarboard"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Second Row Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card stat-card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Departments</h6>
+                        <h3 class="mb-0">{{ stats.total_departments }}</h3>
+                    </div>
+                    <div class="stat-icon bg-secondary bg-opacity-10 text-secondary">
+                        <i class="bi bi-building"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Courses</h6>
+                        <h3 class="mb-0">{{ stats.total_courses }}</h3>
+                    </div>
+                    <div class="stat-icon bg-danger bg-opacity-10 text-danger">
+                        <i class="bi bi-book"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Subjects</h6>
+                        <h3 class="mb-0">{{ stats.total_subjects }}</h3>
+                    </div>
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                        <i class="bi bi-journal-text"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="bi bi-bar-chart"></i> Room Utilization</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="roomChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="bi bi-pie-chart"></i> Faculty Workload</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="workloadChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions & Conflicts -->
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="bi bi-lightning"></i> Quick Actions</h6>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('admin.generate_timetable') }}" method="POST" class="mb-3">
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-magic"></i> Generate Timetable
+                        </button>
+                        <a href="{{ url_for('admin.timetable') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-table"></i> View Timetable
+                        </a>
+                    </div>
+                </form>
+                <form action="{{ url_for('admin.auto_resolve') }}" method="POST">
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-wrench"></i> Auto-Resolve Conflicts
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Conflicts</h6>
+            </div>
+            <div class="card-body" id="conflictsList">
+                <p class="text-muted">Loading conflicts...</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Load analytics data
+    fetch('/api/analytics')
+        .then(r => r.json())
+        .then(data => {
+            renderRoomChart(data.room_utilization);
+            renderWorkloadChart(data.faculty_workload);
+        })
+        .catch(() => {
+            document.getElementById('roomChart').parentElement.innerHTML =
+                '<p class="text-muted">No data available yet. Generate a timetable first.</p>';
+        });
+
+    // Load conflicts
+    fetch('/api/conflicts')
+        .then(r => r.json())
+        .then(data => {
+            const el = document.getElementById('conflictsList');
+            if (data.total === 0) {
+                el.innerHTML = '<p class="text-success"><i class="bi bi-check-circle"></i> No conflicts detected.</p>';
+            } else {
+                let html = `<p class="text-danger"><strong>${data.total}</strong> conflict(s) found:</p><ul class="list-group list-group-flush">`;
+                data.conflicts.slice(0, 5).forEach(c => {
+                    const badge = c.severity === 'critical' ? 'danger' : 'warning';
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${c.description}
+                        <span class="badge bg-${badge}">${c.type}</span>
+                    </li>`;
+                });
+                html += '</ul>';
+                el.innerHTML = html;
+            }
+        })
+        .catch(() => {});
+});
+
+function renderRoomChart(data) {
+    if (!data || !data.length) return;
+    const top10 = data.slice(0, 10);
+    new Chart(document.getElementById('roomChart'), {
+        type: 'bar',
+        data: {
+            labels: top10.map(r => r.room_name),
+            datasets: [{
+                label: 'Utilization %',
+                data: top10.map(r => r.utilization_rate),
+                backgroundColor: top10.map(r =>
+                    r.utilization_rate > 70 ? '#dc3545' :
+                    r.utilization_rate > 40 ? '#ffc107' : '#198754'
+                ),
+                borderRadius: 4,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: '%' } } }
+        }
+    });
+}
+
+function renderWorkloadChart(data) {
+    if (!data || !data.length) return;
+    const top10 = data.slice(0, 10);
+    new Chart(document.getElementById('workloadChart'), {
+        type: 'doughnut',
+        data: {
+            labels: top10.map(f => f.faculty_name),
+            datasets: [{
+                data: top10.map(f => f.total_hours),
+                backgroundColor: [
+                    '#0d6efd', '#198754', '#ffc107', '#dc3545', '#6f42c1',
+                    '#0dcaf0', '#fd7e14', '#20c997', '#d63384', '#6c757d'
+                ],
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'right', labels: { boxWidth: 12 } } }
+        }
+    });
+}
+</script>
+{% endblock %}
